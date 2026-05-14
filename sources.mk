@@ -2,6 +2,7 @@
 
 SRC_DIR = Files_c
 INCLUDE_DIR = Files_h 
+OBJ_DIR = Files_o
 
 #List of my source files here
 SRCS = \
@@ -12,7 +13,9 @@ SRCS = \
 	$(SRC_DIR)/pwm.c \
 	$(SRC_DIR)/SRS_GPIO_DRIVER.c \
 	$(SRC_DIR)/SRS_TIM_DRIVER.c \
-	$(SRC_DIR)/system_stm32f4xx.c
+	$(SRC_DIR)/system_stm32f4xx.c \
+	$(SRC_DIR)/sensor.c \
+	$(SRC_DIR)/SRS_ADC_DRIVER.c
 
 # List all your include directories here
 INCLUDES = \

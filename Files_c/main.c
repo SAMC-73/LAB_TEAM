@@ -1,39 +1,87 @@
 /**
- ******************************************************************************
- * @file           : main.c
- * @author         : Mauricio Vela, Adal Aguirre, Steven McClellan
- * @brief          : Lab 2 — Timer delay + PWM simultaneous demo
+ * @file main.c
+ * @brief Application example:
+ * Potentiometer controls LED brightness using ADC + PWM.
  *
- * Demonstrates two independent time-based operations running at the same time:
+ * Connections:
+ *   Potentiometer output -> PA0 (ADC1_IN0)
+ *   PWM output           -> PA6 (TIM3_CH1)
  *
- *   1. LED blink (PA5) — toggles every 500 ms using TIM2 hardware delay.
- *      The CPU blocks in timer_delay_ms() for 500 ms, then toggles the LED.
- *
- *   2. PWM signal (PA6) — 1 kHz, 50% duty cycle via TIM3 Channel 1.
- *      Runs entirely in hardware. The CPU does nothing to maintain it.
- *      Measure with oscilloscope on CN10 pin 13.
- *
- * Both operations use different timers so they do not interfere.
- ******************************************************************************
+ * Behavior:
+ *   ADC reads analog voltage from potentiometer.
+ *   ADC value (0–4095) is mapped into PWM duty cycle (0–100%).
+ *   LED brightness changes in real time.
+ *  @author Steven McClellan
+ *  @date 05/13/2026
  */
 
-#include <stdint.h>
-#include "timer.h"
+#include "SRS_GPIO_DRIVER.h"
+#include "sensor.h"
 #include "pwm.h"
-#include "led.h"
 
 int main(void)
 {
-    led_init();
-    timer_init();
+    uint16_t adc_value;
+    uint8_t duty_cycle;
 
-    pwm_init(1000);        /* 1 kHz PWM on PA6 via TIM3_CH1 */
-    pwm_setSignal(50);     /* 50% duty cycle */
-    pwm_start();           /* enable CCER + start TIM3 counter */
+    /* GPIO CONFIGURATION */
 
-    while(1) {
-        led_toggle();
-        timer_delay_ms(500);
-        
+    gpio_init();
+
+    /* Enable GPIOA clock */
+    gpio_initPort(A);
+
+    /*
+     * PA0 -> ADC1_IN0
+     * Configure as analog mode
+     * MODER = 11
+     */
+    gpio_setPinMode(A, 0, 3);
+
+    /* ADC CONFIGURATION */
+
+    adc_init();
+
+    /* Enable ADC peripheral */
+    adc_enableAdc();
+
+    /*
+     * Configure regular ADC channel 0
+     * (PA0 = ADC1_IN0)
+     */
+    sensor_init(0);
+
+    /* PWM CONFIGURATION */
+
+    /* PWM is set at 1 kHz*/
+    pwm_init(1000);
+
+    /* Start PWM generation */
+    pwm_start();
+
+    /* MAIN LOOP */
+
+    while (1)
+    {
+        /* Start ADC conversion */
+        sensor_startConversion();
+
+         while((ADC1->SR & (1U << 1)) == 0);
+
+        /* Read ADC result (0–4095) */
+        sensor_readValue(&adc_value);
+
+        /*
+         * Map ADC value into duty cycle percentage
+         *
+         * 0      -> 0%
+         * 4095   -> 100%
+         */
+        duty_cycle = (adc_value * 100U) / 4095U;
+
+        /* Update PWM signal */
+        pwm_setSignal(duty_cycle);
+
+        for(volatile uint32_t i = 0; i < 5000; i++);
     }
 }

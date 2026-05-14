@@ -1,5 +1,7 @@
 #This is my first makefile
 
+OBJ_DIR = Files_o
+
 include sources.mk
 
 EXEC = app.elf
@@ -13,7 +15,7 @@ FPU = fpv4-sp-d16
 
 ARCHFLAGS = -mcpu=$(CPU) -mthumb -march=$(ARCH) -mfloat-abi=hard -mfpu=$(FPU) --specs=$(SPECS)
 
-OBJS := $(SRCS:.c=.o) # Creating Object List from Source List
+OBJS := $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRCS)) # Creating Object List from Source List
 
 CC = arm-none-eabi-gcc
 
@@ -26,7 +28,8 @@ LDFLAGS = -nostdlib -T $(LINKER_FILE)
 # Sizeflags
 SZFLAGS = -Btd
 
-%.o : %.c 
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	mkdir -p $(OBJ_DIR)
 	$(CC) -c $< $(CFLAGS) $(INCLUDES) -o $@
 	
 .PHONY : clean

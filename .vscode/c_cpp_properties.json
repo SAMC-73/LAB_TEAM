@@ -2,18 +2,17 @@
     "configurations": [
         {
             "name": "ARM none eabi GCC",
-            "includePath": [ // Add all the include paths here
+            "includePath": [
                 "${workspaceFolder}",
                 "${workspaceFolder}/CMSIS/*/Include",
                 "${workspaceFolder}/Files_c",
-                "${workspaceFolder}/Files_h",
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/Files_h"
             ],
-            "defines": [ // Add all the project defines here
+            "defines": [
                 "STM32F411xE"
             ],
             "cStandard": "c99",
-            "compilerPath": "C:/Program Files/arm-gnu-toolchain-15.2.rel1-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gcc.exe", // Path to compiler
+            "compilerPath": "C:/arm-gnu-toolchain-15.2.rel1-mingw-w64-i686-arm-none-eabi/bin/arm-none-eabi-gcc.exe",
             "intelliSenseMode": "windows-gcc-arm"
         }
     ],
